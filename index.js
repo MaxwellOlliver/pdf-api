@@ -22,12 +22,12 @@ app.post('/generate-pdf', async (request, response) => {
 
   return response.json({
     filename: filename + '.pdf',
-    fileUri: `${process.env.API_URL}/${filename}`,
-    viewFile: `${process.env.API_URL}/pipe/${filename}`,
+    fileUri: `${process.env.API_URL}/pdf/${filename}`,
+    viewFile: `${process.env.API_URL}/pdf/view/${filename}`,
   });
 });
 
-app.get('/pdf/pipe/:filename', (request, response) => {
+app.get('/pdf/view/:filename', (request, response) => {
   let filename = request.params.filename;
   let stream;
   const pathName = path.join(__dirname, 'tmp', `${filename}.pdf`);
