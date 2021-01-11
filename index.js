@@ -22,8 +22,8 @@ app.post('/generate-pdf', async (request, response) => {
 
   return response.json({
     filename: filename + '.pdf',
-    fileUri: `${process.env.API_URL}/pdf/${filename}.pdf`,
-    viewFile: `${process.env.API_URL}/pdf/view/${filename}.pdf`,
+    fileUri: `${process.env.API_URL || 'http://localhost:3333'}/pdf/${filename}.pdf`,
+    viewFile: `${process.env.API_URL || 'http://localhost:3333'}/pdf/view/${filename}.pdf`,
   });
 });
 
@@ -69,4 +69,5 @@ app.get('/pdf/:filename', (request, response) => {
 
   return response.download(file);
 });
+
 app.listen(process.env.PORT || 3333);
