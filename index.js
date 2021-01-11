@@ -30,7 +30,7 @@ app.post('/generate-pdf', async (request, response) => {
 app.get('/pdf/view/:filename', (request, response) => {
   let filename = request.params.filename;
   let stream;
-  const pathName = path.join(__dirname, 'tmp', `${filename}.pdf`);
+  const pathName = path.join(__dirname, 'tmp', `${filename}`);
 
   if (fs.existsSync(pathName)) {
     stream = fs.createReadStream(pathName);
@@ -53,7 +53,7 @@ app.get('/pdf/view/:filename', (request, response) => {
 
 app.get('/pdf/:filename', (request, response) => {
   const filename = request.params.filename;
-  const pathName = path.join(__dirname, 'tmp', `${filename}.pdf`);
+  const pathName = path.join(__dirname, 'tmp', `${filename}`);
   let file;
 
   if (fs.existsSync(pathName)) {
@@ -65,10 +65,7 @@ app.get('/pdf/:filename', (request, response) => {
   }
 
   response.setHeader('Content-Type', 'application/pdf');
-  response.setHeader(
-    'Content-Disposition',
-    `attachment; filename=${filename}.pdf`
-  );
+  response.setHeader('Content-Disposition', `attachment; filename=${filename}`);
 
   return response.download(file);
 });
