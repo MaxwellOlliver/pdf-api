@@ -3,7 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-const { Boletos } = require('gerar-boletos');
+const { Boletos } = require('./lib/gerar-boletos');
 const boleto = require('./example');
 const { v4 } = require('uuid');
 
