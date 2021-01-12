@@ -24,8 +24,8 @@ app.post('/billet/pdf/generate', async (request, response) => {
 
   return response.json({
     filename: filename + '.pdf',
-    fileUri: `${process.env.API_URL}/pdf/${filename}.pdf`,
-    viewFile: `${process.env.API_URL}/pdf/view/${filename}.pdf`,
+    fileUri: `${process.env.API_URL}/billet/pdf/${filename}.pdf`,
+    viewFile: `${process.env.API_URL}/billet/pdf/file/${filename}.pdf`,
   });
 });
 
