@@ -1,12 +1,18 @@
-require('dotenv/config');
-const express = require('express');
+import 'dotenv/config'
+import express, { json } from 'express'
 
-const cors = require('cors');
-const routes = require('./routes');
-const app = express();
+import cors from 'cors'
+import routes from './routes'
+const app = express()
 
-app.use(express.json());
-app.use(cors());
-app.use(routes);
+app.disable('X-Powered-By')
 
-app.listen(process.env.PORT || 3333);
+app.use(json())
+app.use(cors())
+app.use((req, res, next) => {
+  req.timeouts = {}
+  return next()
+})
+app.use(routes)
+
+app.listen(process.env.PORT || 3333)
