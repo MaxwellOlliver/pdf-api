@@ -62,6 +62,8 @@ class PdfToBilletController {
         },
       },
       boleto: {
+        linhaDigitavel: payload.dadosboleto.linhadigitavel,
+        codigoDeBarras: payload.dadosboleto.codigobarra,
         numeroDocumento: payload.dadosboleto.desnumdoc,
         especieDocumento: payload.dadosboleto.desespecdoc,
         valor: payload.dadosboleto.valbolet,
@@ -88,7 +90,7 @@ class PdfToBilletController {
       newBillet.gerarBoleto()
       await newBillet.pdfFile(filename)
     } catch (error) {
-      unlink(join('..', '..', 'tmp', `${filename}.pdf`), () => {})
+      unlink(join('..', '..', 'tmp', `${filename}.pdf`), () => { })
       return response.status(400).json({ error: error.message })
     }
 
