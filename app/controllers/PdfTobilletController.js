@@ -4,6 +4,8 @@ import { unlink, existsSync, createReadStream } from 'fs'
 import { join } from 'path'
 import { ptBR } from 'date-fns/locale'
 
+import { Create } from '../yup-schemas/PdfToBillet'
+
 import { Boletos, Bancos } from '../../lib/gerar-boletos'
 
 import Mail from '../../lib/Mail'
@@ -11,6 +13,13 @@ import Mail from '../../lib/Mail'
 class PdfToBilletController {
   async create(request, response) {
     const { body: payload } = request
+
+    // try {
+    //   await Create.validate(request.body)
+    // } catch (error) {
+    //   return response.status(400).json({ error: error.errors.join(' ') })
+    // }
+
     const filename = `boleto-${payload.dadosboleto.descpf}-${payload.dadosboleto.datvenci}`
     const Banco = Bancos[String(payload.dadosboleto.codbanco).toUpperCase()]
 
