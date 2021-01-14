@@ -2,10 +2,10 @@
   "name": "pdf-generator",
   "version": "1.0.0",
   "description": "",
-  "main": "base64Actions.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "sucrase-node index.js"
+    "start": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
@@ -20,10 +20,12 @@
     "nodemailer": "^6.4.17",
     "nodemailer-express-handlebars": "^4.0.0",
     "pdfkit": "0.10.0",
-    "sucrase": "^3.17.0"
+    "sucrase": "^3.17.0",
+    "yup": "^0.32.8"
   },
   "devDependencies": {
     "eslint": "^6.5.1",
+    "nodemon": "^2.0.7",
     "nodeunit": "0.11.3"
   }
 }

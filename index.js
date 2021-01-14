@@ -5,7 +5,7 @@ import cors from 'cors'
 import routes from './routes'
 const app = express()
 
-app.disable('X-Powered-By')
+app.disable('x-powered-by')
 
 app.use(json())
 app.use(cors())

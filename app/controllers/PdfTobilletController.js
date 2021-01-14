@@ -1,7 +1,8 @@
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays'
-import { parseISO } from 'date-fns'
+import { parseISO, format } from 'date-fns'
 import { unlink, existsSync, createReadStream } from 'fs'
 import { join } from 'path'
+import { ptBR } from 'date-fns/locale'
 
 import { Boletos, Bancos } from '../../lib/gerar-boletos'
 
@@ -10,7 +11,7 @@ import Mail from '../../lib/Mail'
 class PdfToBilletController {
   async create(request, response) {
     const { body: payload } = request
-    const filename = `boleto-${payload.dadosboleto.descpf}`
+    const filename = `boleto-${payload.dadosboleto.descpf}-${payload.dadosboleto.datvenci}`
     const Banco = Bancos[payload.dadosboleto.codbanco]
 
     const instructions = Object.keys(payload.dadosboleto)
@@ -20,8 +21,8 @@ class PdfToBilletController {
     const billet = {
       banco: new Banco(),
       pagador: {
-        nome: payload.dadosboleto.nomcliente,
-        RegistroNacional: payload.desregis,
+        nome: payload.dadosboleto.nomclien,
+        registroNacional: payload.dadosboleto.descpf,
         endereco: {
           logradouro: payload.dadosboleto.desender,
           bairro: payload.dadosboleto.desbairr,
@@ -32,33 +33,43 @@ class PdfToBilletController {
       },
       instrucoes: instructions,
       beneficiario: {
-        nome: 'Empresa Fictícia LTDA',
-        cnpj: '43576788000191',
+        nome: payload.dadosboleto.descodceden,
+        cnpj: '04670195000138',
         dadosBancarios: {
-          carteira: '09',
-          agencia: '0101',
-          agenciaDigito: '5',
-          conta: '0326446',
-          contaDigito: '0',
-          nossoNumero: payload.dadosboleto.nossonumero,
-          nossoNumeroDigito: '8',
+          carteira: payload.dadosboleto.descartebanco,
+          agencia: payload.dadosboleto.desagenc,
+          agenciaDigito: payload.dadosboleto.desagencdv,
+          conta: payload.dadosboleto.desconta,
+          contaDigito: payload.dadosboleto.descontadv,
+          nossoNumero: '0010017547403',
+          nossoNumeroDigito: '2',
         },
         endereco: {
-          logradouro: 'Rua Pedro Lessa, 15',
-          bairro: 'Centro',
-          cidade: 'Rio de Janeiro',
-          estadoUF: 'RJ',
-          cep: '20030-030',
+          logradouro: 'AL RIO NEGRO',
+          bairro: 'ALPHAVILLE',
+          cidade: 'BARUERI',
+          estadoUF: 'SP',
+          cep: '06454000',
         },
       },
       boleto: {
         numeroDocumento: payload.dadosboleto.desnumdoc,
         especieDocumento: payload.dadosboleto.desespecdoc,
-        valor: Number(payload.dadosboleto.valbolet),
+        valor: payload.dadosboleto.valbolet,
         datas: {
-          vencimento: payload.dadosboleto.datvenci,
-          processamento: '02-04-2019',
-          documentos: '02-04-2019',
+          vencimento: format(
+            parseISO(payload.dadosboleto.datvenci),
+            'yyyy-MM-dd',
+            {
+              locale: ptBR,
+            }
+          ),
+          processamento: format(new Date(), 'yyyy-MM-dd', {
+            locale: ptBR,
+          }),
+          documentos: format(new Date(), 'yyyy-MM-dd', {
+            locale: ptBR,
+          }),
         },
       },
     }
@@ -69,35 +80,35 @@ class PdfToBilletController {
       await newBillet.pdfFile(filename)
     } catch (error) {
       unlink(join('tmp', `${filename}.pdf`), () => {})
-      return response.status(400).json({ error: 'Error on generate billet' })
+      return response.status(400).json({ error: error.message })
     }
 
-    const adDays = differenceInCalendarDays(
-      parseISO(payload.dadosboleto.datvenci),
-      new Date()
-    )
-    const ms = 1000 * 60 * 60 * 24 * adDays
+    // const adDays = differenceInCalendarDays(
+    //   parseISO(payload.dadosboleto.datvenci),
+    //   new Date()
+    // )
+    // const ms = 1000 * 60 * 60 * 24 * adDays
 
-    request.timeouts[filename] = setTimeout(
-      () => unlink(join('tmp', `${filename}.pdf`), () => {}),
-      ms
-    )
+    // request.timeouts[filename] = setTimeout(
+    //   () => unlink(join('tmp', `${filename}.pdf`), () => {}),
+    //   ms
+    // )
 
-    Mail.sendMail(
-      {
-        to: `${payload.dadosboleto.nomcliente} <${payload.dadosboleto.desemail}>`,
-        subject: 'Seu BOLETO já está disponível!',
-        template: 'default',
-        context: {
-          user: payload.dadosboleto.nomcliente,
-        },
-      },
-      [
-        {
-          href: `${process.env.API_URL}/billet/pdf/${filename}.pdf`,
-        },
-      ]
-    )
+    // Mail.sendMail(
+    //   {
+    //     to: `${payload.dadosboleto.nomcliente} <${payload.dadosboleto.desemail}>`,
+    //     subject: 'Seu BOLETO já está disponível!',
+    //     template: 'default',
+    //     context: {
+    //       user: payload.dadosboleto.nomcliente,
+    //     },
+    //   },
+    //   [
+    //     {
+    //       href: `${process.env.API_URL}/billet/pdf/${filename}.pdf`,
+    //     },
+    //   ]
+    // )
 
     return response.json({
       filename: `${filename}.pdf`,
@@ -109,7 +120,7 @@ class PdfToBilletController {
   show(request, response) {
     let filename = request.params.filename
     let stream
-    const pathName = join(__dirname, 'tmp', `${filename}`)
+    const pathName = join(__dirname, '..', '..', 'tmp', `${filename}`)
 
     if (existsSync(pathName)) {
       stream = createReadStream(pathName)
@@ -131,8 +142,9 @@ class PdfToBilletController {
   }
 
   download(request, response) {
-    const filename = request.params.filename
-    const pathName = join(__dirname, 'tmp', `${filename}`)
+    let filename = request.params.filename
+    filename = encodeURIComponent(filename)
+    const pathName = join(__dirname, '..', '..', 'tmp', `${filename}`)
     let file
 
     if (existsSync(pathName)) {
@@ -158,7 +170,7 @@ class PdfToBilletController {
       clearTimeout(request.timeouts[filename])
     } else {
       return response.status(404).json({
-        error: `None file with name ${filename} are be in the auto-delete queue`,
+        error: `File with name ${filename} are not in the auto-delete queue`,
       })
     }
 
