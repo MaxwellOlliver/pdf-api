@@ -12,7 +12,7 @@ class PdfToBilletController {
   async create(request, response) {
     const { body: payload } = request
     const filename = `boleto-${payload.dadosboleto.descpf}-${payload.dadosboleto.datvenci}`
-    const Banco = Bancos[payload.dadosboleto.codbanco]
+    const Banco = Bancos[String(payload.dadosboleto.codbanco).toUpperCase()]
 
     const instructions = Object.keys(payload.dadosboleto)
       .filter((key) => /^desinstr/g.test(key) && payload.dadosboleto[key])
@@ -79,7 +79,7 @@ class PdfToBilletController {
       newBillet.gerarBoleto()
       await newBillet.pdfFile(filename)
     } catch (error) {
-      unlink(join('tmp', `${filename}.pdf`), () => {})
+      unlink(join('..', '..', 'tmp', `${filename}.pdf`), () => {})
       return response.status(400).json({ error: error.message })
     }
 
