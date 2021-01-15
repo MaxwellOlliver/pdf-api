@@ -1,44 +1,55 @@
 import * as Yup from 'yup'
 
 export const Create = Yup.object().shape({
-  banco: Yup.string().required(),
-  pagador: Yup.object()
-    .required()
-    .shape({
-      nome: Yup.string(),
-      cpf: Yup.string(),
-      logradouro: Yup.string(),
-      bairro: Yup.string(),
-      cidade: Yup.string(),
-      uf: Yup.string().max(2),
-      cep: Yup.string(),
+  bank: Yup.string().required(),
+  sendEmail: Yup.object().shape({
+    payerEmail: Yup.string().email(),
+    logo: Yup.string().when('payerEmail', (payerEmail, field) => {
+      payerEmail ? field.required() : field
     }),
-  beneficiario: Yup.object()
+    sender: Yup.string().when('payerEmail', (payerEmail, field) => {
+      payerEmail ? field.required() : field
+    }),
+  }),
+  payer: Yup.object()
     .required()
     .shape({
-      nome: Yup.string(),
-      cnpj: Yup.string(),
-      carteira: Yup.string().required(),
-      agencia: Yup.string().required(),
-      agenciaDigito: Yup.string().required(),
-      conta: Yup.string().required(),
-      contaDigito: Yup.string().required(),
+      name: Yup.string().required(),
+      cpf: Yup.string().required(),
+      address: Yup.string().required(),
+      neighborhood: Yup.string().required(),
+      city: Yup.string().required(),
+      stateUf: Yup.string().max(2).min(2).required(),
+      cep: Yup.string().required(),
+    }),
+  recipient: Yup.object()
+    .required()
+    .shape({
+      name: Yup.string().required(),
+      cnpj: Yup.string().required(),
+      bankWallet: Yup.string().required(),
+      agency: Yup.string().required(),
+      agencyDigit: Yup.string().required(),
+      account: Yup.string().required(),
+      accountDigit: Yup.string().required(),
       nossoNumero: Yup.string().required(),
-      nossoNumeroDigito: Yup.string().required(),
-      logradouro: Yup.string(),
-      bairro: Yup.string(),
-      cidade: Yup.string(),
-      uf: Yup.string().max(2),
-      cep: Yup.string(),
+      nossoNumeroDigit: Yup.string().required(),
+      address: Yup.string().required(),
+      neighborhood: Yup.string().required(),
+      city: Yup.string().required(),
+      stateUf: Yup.string().max(2).required(),
+      cep: Yup.string().required(),
     }),
-  boleto: {
-    numeroDocumento: Yup.string().required(),
-    especieDocumento: Yup.string().required(),
-    valor: Yup.string().required(),
-    datas: {
-      vencimento: Yup.date().required(),
-      processamento: Yup.date().required(),
-      documentos: Yup.date().required(),
-    },
-  },
+  billet: Yup.object()
+    .required()
+    .shape({
+      barCode: Yup.string(),
+      docNumber: Yup.string().required(),
+      docSpecie: Yup.string().required(),
+      value: Yup.string().required(),
+      instructions: Yup.array(Yup.string()),
+      dates: Yup.object().required().shape({
+        due: Yup.date().required(),
+      }),
+    }),
 })

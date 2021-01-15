@@ -1,6 +1,6 @@
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays'
-import { parseISO, format } from 'date-fns'
-import { unlink, existsSync, createReadStream } from 'fs'
+import { parseISO, format, isBefore, addDays } from 'date-fns'
+import { unlink, existsSync, createReadStream, readdir } from 'fs'
 import { join } from 'path'
 import { ptBR } from 'date-fns/locale'
 
@@ -9,72 +9,75 @@ import { Create } from '../yup-schemas/PdfToBillet'
 import { Boletos, Bancos } from '../../lib/gerar-boletos'
 
 import Mail from '../../lib/Mail'
+import { promisify } from 'util'
+import axios from 'axios'
+
+const timeouts = {}
 
 class PdfToBilletController {
   async create(request, response) {
     const { body: payload } = request
 
-    // try {
-    //   await Create.validate(request.body)
-    // } catch (error) {
-    //   return response.status(400).json({ error: error.errors.join(' ') })
-    // }
+    try {
+      await Create.validate(request.body)
+    } catch (error) {
+      return response.status(400).json({ error: error.errors.join('. ') })
+    }
+    const Bank = Bancos[String(payload.bank).toUpperCase()]
 
-    const filename = `boleto-${payload.dadosboleto.descpf}-${payload.dadosboleto.datvenci}`
-    const Banco = Bancos[String(payload.dadosboleto.codbanco).toUpperCase()]
+    if (!Bank) {
+      return response.status(400).json({ error: 'Unsuported bank' })
+    }
 
-    const instructions = Object.keys(payload.dadosboleto)
-      .filter((key) => /^desinstr/g.test(key) && payload.dadosboleto[key])
-      .map((inst) => payload.dadosboleto[inst])
+    const filename = `boleto-${payload.payer.cpf}-${payload.billet.dates.due}`
+
+    // const instructions = Object.keys(payload.dadosboleto)
+    //   .filter((key) => /^desinstr/g.test(key) && payload.dadosboleto[key])
+    //   .map((inst) => payload.dadosboleto[inst])
 
     const billet = {
-      banco: new Banco(),
+      banco: new Bank(),
       pagador: {
-        nome: payload.dadosboleto.nomclien,
-        registroNacional: payload.dadosboleto.descpf,
+        nome: payload.payer.name,
+        registroNacional: payload.payer.cpf,
         endereco: {
-          logradouro: payload.dadosboleto.desender,
-          bairro: payload.dadosboleto.desbairr,
-          cidade: payload.dadosboleto.descidad,
-          estadoUF: payload.dadosboleto.desestad,
-          cep: payload.dadosboleto.descep,
+          logradouro: payload.payer.address,
+          bairro: payload.payer.neighborhood,
+          cidade: payload.payer.city,
+          estadoUF: payload.payer.stateUf,
+          cep: payload.payer.cep,
         },
       },
-      instrucoes: instructions,
+      instrucoes: payload.billet.instructions,
       beneficiario: {
-        nome: payload.dadosboleto.descodceden,
-        cnpj: '04670195000138',
+        nome: payload.recipient.name,
+        cnpj: payload.recipient.cnpj,
         dadosBancarios: {
-          carteira: payload.dadosboleto.descartebanco,
-          agencia: payload.dadosboleto.desagenc,
-          agenciaDigito: payload.dadosboleto.desagencdv,
-          conta: payload.dadosboleto.desconta,
-          contaDigito: payload.dadosboleto.descontadv,
-          nossoNumero: '0010017547403',
-          nossoNumeroDigito: '2',
+          carteira: payload.recipient.bankWallet,
+          agencia: payload.recipient.agency,
+          agenciaDigito: payload.recipient.agencyDigit,
+          conta: payload.recipient.account,
+          contaDigito: payload.recipient.accountDigit,
+          nossoNumero: payload.recipient.nossoNumero,
+          nossoNumeroDigito: payload.recipient.nossoNumeroDigit,
         },
         endereco: {
-          logradouro: 'AL RIO NEGRO',
-          bairro: 'ALPHAVILLE',
-          cidade: 'BARUERI',
-          estadoUF: 'SP',
-          cep: '06454000',
+          logradouro: payload.recipient.address,
+          bairro: payload.recipient.neighborhood,
+          cidade: payload.recipient.city,
+          estadoUF: payload.recipient.stateUf,
+          cep: payload.recipient.cep,
         },
       },
       boleto: {
-        linhaDigitavel: payload.dadosboleto.linhadigitavel,
-        codigoDeBarras: payload.dadosboleto.codigobarra,
-        numeroDocumento: payload.dadosboleto.desnumdoc,
-        especieDocumento: payload.dadosboleto.desespecdoc,
-        valor: payload.dadosboleto.valbolet,
+        codigoDeBarras: payload.billet.barCode,
+        numeroDocumento: payload.billet.docNumber,
+        especieDocumento: payload.billet.docSpecie,
+        valor: payload.billet.value,
         datas: {
-          vencimento: format(
-            parseISO(payload.dadosboleto.datvenci),
-            'yyyy-MM-dd',
-            {
-              locale: ptBR,
-            }
-          ),
+          vencimento: format(parseISO(payload.billet.dates.due), 'yyyy-MM-dd', {
+            locale: ptBR,
+          }),
           processamento: format(new Date(), 'yyyy-MM-dd', {
             locale: ptBR,
           }),
@@ -90,36 +93,62 @@ class PdfToBilletController {
       newBillet.gerarBoleto()
       await newBillet.pdfFile(filename)
     } catch (error) {
-      unlink(join('..', '..', 'tmp', `${filename}.pdf`), () => { })
+      unlink(join('..', '..', 'tmp', `${filename}.pdf`), () => {})
       return response.status(400).json({ error: error.message })
     }
 
-    // const adDays = differenceInCalendarDays(
-    //   parseISO(payload.dadosboleto.datvenci),
-    //   new Date()
-    // )
-    // const ms = 1000 * 60 * 60 * 24 * adDays
+    const adDays = differenceInCalendarDays(
+      addDays(parseISO(payload.billet.dates.due), 1),
+      new Date()
+    )
 
-    // request.timeouts[filename] = setTimeout(
-    //   () => unlink(join('tmp', `${filename}.pdf`), () => {}),
-    //   ms
-    // )
+    let ms
 
-    // Mail.sendMail(
-    //   {
-    //     to: `${payload.dadosboleto.nomcliente} <${payload.dadosboleto.desemail}>`,
-    //     subject: 'Seu BOLETO já está disponível!',
-    //     template: 'default',
-    //     context: {
-    //       user: payload.dadosboleto.nomcliente,
-    //     },
-    //   },
-    //   [
-    //     {
-    //       href: `${process.env.API_URL}/billet/pdf/${filename}.pdf`,
-    //     },
-    //   ]
-    // )
+    if (adDays === 0) {
+      ms = 86400000 // 3 hours
+    } else if (adDays < 0) {
+      ms = 10800000 // 1 hour
+    } else {
+      ms = 1000 * 60 * 60 * 24 * adDays
+    }
+
+    timeouts[filename + '.pdf'] = setTimeout(
+      () => promisify(unlink)(join('tmp', `${filename}.pdf`)),
+      ms
+    )
+
+    if (payload.sendEmail.payerEmail) {
+      Mail.sendMail(
+        {
+          from: `Equipe ${payload.sendEmail.sender} <noreply@vyadigital.com>`,
+          to: `${payload.payer.name} <${payload.sendEmail.payerEmail}>`,
+          subject: 'Aqui está o BOLETO que você pediu!',
+          template: 'default',
+          context: {
+            user: payload.payer.name,
+            due_date: format(parseISO(payload.billet.dates.due), 'dd/MM/yyyy', {
+              locale: ptBR,
+            }),
+            process_date: format(new Date(), "dd/MM/yyyy à's' HH:mm'h'", {
+              locale: ptBR,
+            }),
+            value: Number(payload.billet.value).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            }),
+            bank_img: payload.sendEmail ? payload.sendEmail.logo : null,
+            sender: payload.sendEmail ? payload.sendEmail.sender : null,
+          },
+        },
+        [
+          {
+            href: `${process.env.API_URL}/billet/pdf/${filename}.pdf`,
+          },
+        ]
+      )
+    }
+
+    axios.delete(`${process.env.API_URL}/billet/pdf/clear`)
 
     return response.json({
       filename: `${filename}.pdf`,
@@ -136,9 +165,9 @@ class PdfToBilletController {
     if (existsSync(pathName)) {
       stream = createReadStream(pathName)
     } else {
-      return response
-        .status(404)
-        .json({ error: `File with name ${filename} does not exists` })
+      return response.sendFile(
+        join(__dirname, '..', '..', 'public', '404.html')
+      )
     }
 
     filename = encodeURIComponent(filename)
@@ -161,9 +190,9 @@ class PdfToBilletController {
     if (existsSync(pathName)) {
       file = pathName
     } else {
-      return response
-        .status(404)
-        .json({ error: `File with name ${filename} does not exists` })
+      return response.sendFile(
+        join(__dirname, '..', '..', 'public', '404.html')
+      )
     }
 
     response.setHeader('Content-Type', 'application/pdf')
@@ -177,8 +206,9 @@ class PdfToBilletController {
 
   edit(request, response) {
     const filename = request.filename
-    if (request.timeouts[filename]) {
-      clearTimeout(request.timeouts[filename])
+    if (timeouts[filename]) {
+      clearTimeout(timeouts[filename])
+      timeouts[filename] = undefined
     } else {
       return response.status(404).json({
         error: `File with name ${filename} are not in the auto-delete queue`,
@@ -186,6 +216,39 @@ class PdfToBilletController {
     }
 
     return response.status(204).send()
+  }
+
+  async delete(request, response) {
+    const files = await promisify(readdir)(join(__dirname, '..', '..', 'tmp'))
+
+    const oldFiles = files.map((filename) => {
+      if (
+        !/^boleto-([0-9]{11})-([0-9]{4})-([0-9]{2})-([0-9]{2}).pdf/.test(
+          filename
+        )
+      ) {
+        return response
+          .status(400)
+          .json({ error: 'Filename does not match with filename partner' })
+      }
+      const subDate = /([0-9]{4})-([0-9]{2})-([0-9]{2})/g.exec(filename)[0]
+      const fileIsBefore = isBefore(parseISO(subDate), new Date())
+      if (fileIsBefore) {
+        return filename
+      }
+    })
+
+    oldFiles.forEach((filename) => {
+      const dir = join(__dirname, '..', '..', 'tmp', filename)
+
+      if (existsSync(dir) && !timeouts[filename]) {
+        promisify(unlink)(dir)
+      }
+    })
+
+    return response.json({
+      deletedFiles: oldFiles,
+    })
   }
 }
 

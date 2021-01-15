@@ -11,4 +11,6 @@ app.get('/billet/pdf/:filename', PdfTobilletController.download)
 
 app.put('/billet/pdf/cancel-ad/:filename', PdfTobilletController.edit)
 
+app.delete('/billet/pdf/clear', PdfTobilletController.delete)
+
 export default app

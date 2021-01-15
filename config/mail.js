@@ -5,7 +5,4 @@ export default {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
-  default: {
-    from: 'Equipe Vya Digital <noreply@vyadigital.com>',
-  },
 }

@@ -1,15 +1,10 @@
-<div style="
-  width: 100%;
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  background-color: #f1b71c;">
-  <h3 style="color: #fff;
-  display: inline-block;
-  vertical-align: middle;
-  line-height: normal;">AGENDAMENTO CANCELADO</h3>
-</div>
-
-<div style="padding: 5% 10% 10% 10%; font-weight: 300;" class="cancellation-container">
-  <span>Olá {{user}}</span>
+<div style="padding: 5% 14% 14% 7%; color: #333;">
+  <span>Olá <strong>{{user}}</strong>,
+    <br>
+    <br>
+    Anexado neste email, está o boleto no valor de {{value}} que você solicitou no dia {{process_date}}.
+    <br>
+    <br>
+    Vence no dia {{ due_date }}.
+  </span>
 </div>
