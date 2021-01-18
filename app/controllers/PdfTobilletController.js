@@ -161,7 +161,6 @@ class PdfToBilletController {
     if (existsSync(pathName)) {
       stream = createReadStream(pathName)
     } else {
-      response.setHeader('Content-type', 'application/html')
       return response.sendFile(
         join(__dirname, '..', '..', 'public', '404.html')
       )
@@ -187,7 +186,6 @@ class PdfToBilletController {
     if (existsSync(pathName)) {
       file = pathName
     } else {
-      response.setHeader('Content-type', 'application/html')
       return response.sendFile(
         join(__dirname, '..', '..', 'public', '404.html')
       )
