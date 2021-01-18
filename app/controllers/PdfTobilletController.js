@@ -31,10 +31,6 @@ class PdfToBilletController {
 
     const filename = `boleto-${payload.payer.cpf}-${payload.billet.dates.due}`
 
-    // const instructions = Object.keys(payload.dadosboleto)
-    //   .filter((key) => /^desinstr/g.test(key) && payload.dadosboleto[key])
-    //   .map((inst) => payload.dadosboleto[inst])
-
     const billet = {
       banco: new Bank(),
       pagador: {
@@ -165,6 +161,7 @@ class PdfToBilletController {
     if (existsSync(pathName)) {
       stream = createReadStream(pathName)
     } else {
+      response.setHeader('Content-type', 'application/html')
       return response.sendFile(
         join(__dirname, '..', '..', 'public', '404.html')
       )
@@ -190,6 +187,7 @@ class PdfToBilletController {
     if (existsSync(pathName)) {
       file = pathName
     } else {
+      response.setHeader('Content-type', 'application/html')
       return response.sendFile(
         join(__dirname, '..', '..', 'public', '404.html')
       )
