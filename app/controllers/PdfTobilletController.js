@@ -116,10 +116,10 @@ class PdfToBilletController {
     if (payload.sendEmail.payerEmail) {
       Mail.sendMail(
         {
-          from: `Equipe ${payload.sendEmail.sender} <noreply@vyadigital.com>`,
+          from: `Equipe ${payload.sendEmail.sender} <${process.env.MAIL_USER}>`,
           to: `${payload.payer.name} <${payload.sendEmail.payerEmail}>`,
           subject: 'Aqui está o BOLETO que você pediu!',
-          template: 'default',
+          template: 'boleto',
           context: {
             user: payload.payer.name,
             due_date: format(parseISO(payload.billet.dates.due), 'dd/MM/yyyy', {
