@@ -3,6 +3,8 @@ import { ptBR } from 'date-fns/locale'
 import Mail from '../../lib/Mail'
 import * as Yup from 'yup'
 
+import Intl from 'intl'
+
 class EmailController {
   async create(request, response) {
     const schema = Yup.object().shape({
@@ -34,7 +36,7 @@ class EmailController {
 
     Mail.sendMail(
       {
-        from: `Equipe ${payload.sender.name} <${process.env.MAIL_USER}>`,
+        from: `${payload.sender.name} <${process.env.MAIL_USER}>`,
         to: `${payload.destination.name} <${payload.destination.email}>`,
         subject: payload.content.subject,
         template: payload.content.template,
@@ -46,10 +48,14 @@ class EmailController {
           process_date: format(new Date(), "dd/MM/yyyy à's' HH:mm'h'", {
             locale: ptBR,
           }),
-          value: Number(payload.content.value).toLocaleString('pt-BR', {
+          // value: Number(payload.content.value).toLocaleString('pt-BR', {
+          //   style: 'currency',
+          //   currency: 'BRL',
+          // }),
+          value: Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
-          }),
+          }).format(payload.content.value),
           bank_img: payload.sender.logo || null,
           sender: payload.sender.name || null,
         },
