@@ -3,8 +3,6 @@ import { ptBR } from 'date-fns/locale'
 import Mail from '../../lib/Mail'
 import * as Yup from 'yup'
 
-import Intl from 'intl'
-
 class EmailController {
   async create(request, response) {
     const schema = Yup.object().shape({
@@ -19,9 +17,10 @@ class EmailController {
       content: Yup.object()
         .required()
         .shape({
-          template: Yup.string().required().oneOf(['boleto']),
-          dueDate: Yup.date().required(),
-          value: Yup.number().required(),
+          template: Yup.string().required().oneOf(['boleto', 'bradesco']),
+          dueDate: Yup.string().required(),
+          value: Yup.string().required(),
+          templateValues: Yup.object(),
           attachments: Yup.array(Yup.string().required()).required(),
         }),
     })
@@ -42,22 +41,14 @@ class EmailController {
         template: payload.content.template,
         context: {
           user: payload.destination.name,
-          due_date: format(parseISO(payload.content.dueDate), 'dd/MM/yyyy', {
-            locale: ptBR,
-          }),
+          due_date: payload.content.dueDate,
           process_date: format(new Date(), "dd/MM/yyyy à's' HH:mm'h'", {
             locale: ptBR,
           }),
-          // value: Number(payload.content.value).toLocaleString('pt-BR', {
-          //   style: 'currency',
-          //   currency: 'BRL',
-          // }),
-          value: Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          }).format(payload.content.value),
+          value: payload.content.value,
           bank_img: payload.sender.logo || null,
           sender: payload.sender.name || null,
+          templateValues: payload.content.templateValues,
         },
       },
       payload.content.attachments.map((att) => ({ href: att }))

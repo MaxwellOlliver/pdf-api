@@ -1,0 +1,94 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+</style>
+<table border="0" cellpadding="0" cellspacing="0"
+  style="padding: 20px 0px 20px 0px; font-family: Roboto, Arial, sans-serif;" width="100%" bgColor="#f3f3f3">
+  <table align="center" style="border-radius: 8px" bgColor="#fff" border="0" cellpadding="0" cellspacing="0" width="600"
+    style="border-collapse: collapse;">
+    <tr bgColor="#fff">
+      <td align="center" style="padding: 40px 0px 20px 0px">
+        <img src="https://i.ibb.co/HND6HvX/system-interact.png" width="70" height="70" alt="logo"
+          style="display: block">
+      </td>
+      <td align="center" style="padding: 40px 0px 20px 0px">
+        <img src="https://i.ibb.co/JB0V1WD/bradesco-logo-novo-2018-1.png" width="75" height="70" alt="logo"
+          style="display: block">
+      </td>
+    </tr>
+    <tr bgColor="#fff">
+      <td style="padding: 30px 30px 30px 30px" colspan="2">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; color: #333">
+          <tr>
+            <td>
+              <strong>
+                Prezado (a): {{user}} - CPF: {{templateValues.cpf}}
+              </strong>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0px 20px 0px;">
+              Conforme entendimento, segue abaixo detalhes da negociação realizada.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Saldo total atualizado da(s) dívida(s) vencida(s): {{value}}</strong>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Plano: ( ) Em {{templateValues.qtdParcelas}} parcelas de {{templateValues.valorParcelas}}</strong>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Vencimento: {{due_date}}</strong>
+            </td>
+          </tr>
+          {{!-- <tr>
+            <td>
+              <strong>CHEQ ESPECIAL:4845206 |</strong>
+            </td>
+          </tr> --}}
+          <tr>
+            <td style="padding: 20px 0px 0px 0px">
+              Optando pela alternativa a seguir, <strong>já acrescidos de juros remuneratórios de 1.00%a.m.</strong>,
+              preencha o
+              campo 6 (=) Valor Cobrado da ficha de
+              compensação abaixo, com o valor da primeira parcela.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0px 20px 0px;">
+              <strong>Realize o pagamento através do internet banking ou imprima este boleto e pague em qualquer banco
+                até a
+                data de vencimento.</strong>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Caso constem dívidas de cartão de crédito nesta negociação, estão inclusos somente os cartões com forma de
+              pagamento por meio de débito em
+              conta corrente, desde que constante da relação de contratos.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0px 20px 0px">
+              Os valores ja estão acrescidos de juros remuneratórios de 1% a.m e IOF financiado.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Se esta negociação contiver parcelas futuras e caso não receber o carnê para pagamento das demais parcelas
+              no
+              endereço de cadastro no prazo
+              de até 20(vinte) dias após o pagamento da primeira parcela, entre em contato com nossa central de
+              atendimento.
+            </td>
+          </tr>
+          {{> footerBradesco}}
+        </table>
+      </td>
+    </tr>
+  </table>
+</table>

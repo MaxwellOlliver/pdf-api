@@ -1,10 +1,36 @@
-<div style="padding: 5% 14% 14% 7%; color: #333;">
-  <span>Olá <strong>{{user}}</strong>,
-    <br>
-    <br>
-    Anexado neste email, está o boleto no valor de {{value}} que você solicitou no dia {{process_date}}.
-    <br>
-    <br>
-    Vence no dia {{ due_date }}.
-  </span>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+</style>
+<div style="
+    width: 100%;
+    display: flex;
+    font-family: Roboto, Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    color: #222;
+    background-color: #f3f3f3;
+    padding: 20px 0;
+" class="default-container">
+  <div style="width: 100%;
+    max-width: 600px;
+    min-height: 300px;
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 20px 0;
+    margin: 0 auto;">
+    <div>
+
+    </div>
+    <img src={{ bank_img }} class="logo" alt="logo" style="width: 140px; margin: 0 20px 20px auto; display: block">
+    <div style="padding: 5% 14% 14% 7%; color: #333;">
+      <span>Olá <strong>{{user}}</strong>,
+        <br>
+        <br>
+        Anexado neste email, está o boleto no valor de {{value}} que você solicitou no dia {{process_date}}.
+        <br>
+        <br>
+        Vence no dia {{ due_date }}.
+      </span>
+    </div>
+    {{> footer}}
+  </div>
 </div>
