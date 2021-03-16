@@ -19,6 +19,7 @@ class EmailController {
         .shape({
           template: Yup.string().required().oneOf(['boleto', 'bradesco']),
           dueDate: Yup.string().required(),
+          processDate: Yup.string(),
           value: Yup.string().required(),
           templateValues: Yup.object(),
           attachments: Yup.array(Yup.string().required()).required(),
@@ -42,9 +43,11 @@ class EmailController {
         context: {
           user: payload.destination.name,
           due_date: payload.content.dueDate,
-          process_date: format(new Date(), "dd/MM/yyyy à's' HH:mm'h'", {
-            locale: ptBR,
-          }),
+          process_date:
+            payload.processDate ||
+            format(new Date(), "dd/MM/yyyy à's' HH:mm'h'", {
+              locale: ptBR,
+            }),
           value: payload.content.value,
           bank_img: payload.sender.logo || null,
           sender: payload.sender.name || null,
