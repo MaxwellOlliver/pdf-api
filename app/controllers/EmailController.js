@@ -44,7 +44,7 @@ class EmailController {
           user: payload.destination.name,
           due_date: payload.content.dueDate,
           process_date:
-            payload.processDate ||
+            payload.content.processDate ||
             format(new Date(), "dd/MM/yyyy à's' HH:mm'h'", {
               locale: ptBR,
             }),
