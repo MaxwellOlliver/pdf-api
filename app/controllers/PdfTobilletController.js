@@ -235,6 +235,7 @@ class PdfToBilletController {
     })
 
     oldFiles.forEach((filename) => {
+      if (!filename) return
       const dir = join(__dirname, '..', '..', 'tmp', filename)
 
       if (existsSync(dir) && !timeouts[filename]) {
