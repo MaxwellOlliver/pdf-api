@@ -69,6 +69,7 @@ class PdfToBilletController {
         codigoDeBarras: payload.billet.barCode,
         numeroDocumento: payload.billet.docNumber,
         especieDocumento: payload.billet.docSpecie,
+        isSystemInteract: payload.billet.isSystemInteract,
         valor: payload.billet.value,
         datas: {
           vencimento: format(parseISO(payload.billet.dates.due), 'yyyy-MM-dd', {

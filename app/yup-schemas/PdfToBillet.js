@@ -43,6 +43,7 @@ export const Create = Yup.object().shape({
   billet: Yup.object()
     .required()
     .shape({
+      isSystemInteract: Yup.boolean(),
       barCode: Yup.string(),
       docNumber: Yup.string().required(),
       docSpecie: Yup.string().required(),
