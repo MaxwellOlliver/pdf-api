@@ -1,5 +1,5 @@
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays'
-import { parseISO, format, isBefore, addDays } from 'date-fns'
+import { parseISO, format, isBefore, addDays, addHours } from 'date-fns'
 import { unlink, existsSync, createReadStream, readdir } from 'fs'
 import { join } from 'path'
 import { ptBR } from 'date-fns/locale'
@@ -72,9 +72,7 @@ class PdfToBilletController {
         isSystemInteract: payload.billet.isSystemInteract,
         valor: payload.billet.value,
         datas: {
-          vencimento: format(parseISO(payload.billet.dates.due), 'yyyy-MM-dd', {
-            locale: ptBR,
-          }),
+          vencimento: payload.billet.dates.due,
           processamento: format(new Date(), 'yyyy-MM-dd', {
             locale: ptBR,
           }),
@@ -84,6 +82,10 @@ class PdfToBilletController {
         },
       },
     }
+
+    console.log(format(addHours(new Date(payload.billet.dates.due), 3), 'yyyy-MM-dd HH:mm', {
+      locale: ptBR,
+    }))
 
     try {
       const newBillet = new Boletos(billet)
