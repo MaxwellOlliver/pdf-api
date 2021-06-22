@@ -135,10 +135,6 @@ class PdfToBilletController {
               style: 'currency',
               currency: 'BRL',
             }),
-            templateValues: {
-              cpf: payload.payer.cpf,
-              qtdParcelas: payload.billet.systemInteract.qtdParcelas,
-            },
             bank_img: payload.sendEmail ? payload.sendEmail.logo : null,
             sender: payload.sendEmail ? payload.sendEmail.sender : null,
           },
