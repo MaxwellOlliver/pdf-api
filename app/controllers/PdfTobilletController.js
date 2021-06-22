@@ -138,7 +138,6 @@ class PdfToBilletController {
             templateValues: {
               cpf: payload.payer.cpf,
               qtdParcelas: payload.billet.systemInteract.qtdParcelas,
-              valorParcelas: payload.billet.systemInteract.valorParcelas,
             },
             bank_img: payload.sendEmail ? payload.sendEmail.logo : null,
             sender: payload.sendEmail ? payload.sendEmail.sender : null,
