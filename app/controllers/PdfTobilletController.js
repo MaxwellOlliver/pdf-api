@@ -122,7 +122,7 @@ class PdfToBilletController {
           from: `Equipe ${payload.sendEmail.sender} <${process.env.MAIL_USER}>`,
           to: `${payload.payer.name} <${payload.sendEmail.payerEmail}>`,
           subject: 'Aqui está o BOLETO que você pediu!',
-          template: 'boleto',
+          template: payload.sendEmail.template || 'boleto',
           context: {
             user: payload.payer.name,
             due_date: format(parseISO(payload.billet.dates.due), 'dd/MM/yyyy', {
