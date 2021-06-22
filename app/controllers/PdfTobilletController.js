@@ -69,7 +69,7 @@ class PdfToBilletController {
         codigoDeBarras: payload.billet.barCode,
         numeroDocumento: payload.billet.docNumber,
         especieDocumento: payload.billet.docSpecie,
-        isSystemInteract: payload.billet.isSystemInteract,
+        systemInteract: payload.billet.systemInteract,
         valor: payload.billet.value,
         datas: {
           vencimento: payload.billet.dates.due,
@@ -135,6 +135,11 @@ class PdfToBilletController {
               style: 'currency',
               currency: 'BRL',
             }),
+            templateValues: {
+              cpf: payload.payer.cpf,
+              qtdParcelas: payload.billet.systemInteractData.qtdParcelas,
+              valorParcelas: payload.billet.systemInteractData.valorParcelas,
+            },
             bank_img: payload.sendEmail ? payload.sendEmail.logo : null,
             sender: payload.sendEmail ? payload.sendEmail.sender : null,
           },
