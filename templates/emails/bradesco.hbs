@@ -45,11 +45,18 @@
               <strong>Vencimento: {{due_date}}</strong>
             </td>
           </tr>
-          {{!-- <tr>
+          <tr>
             <td>
-              <strong>CHEQ ESPECIAL:4845206 |</strong>
+              <strong>CONTRATO(S) NEGOCIADO(S):</strong>
             </td>
-          </tr> --}}
+          </tr>
+          {{#each products}}
+            <tr>
+              <td>
+                {{this}} |
+              </td>
+            </tr>
+          {{/each}}
           <tr>
             <td style="padding: 20px 0px 0px 0px">
               Optando pela alternativa a seguir, <strong>já acrescidos de juros remuneratórios de 1.00%a.m.</strong>,
